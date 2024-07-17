@@ -23,8 +23,6 @@ public class StudentController {
 
     @GetMapping("home")
     public String result(Model model) {
-        StudentDto studentDto= studentService.findStudentByUsername("mhzd");
-        model.addAttribute("studentDto", studentDto);
         return "home";
     }
 

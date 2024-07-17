@@ -3,17 +3,29 @@ package com.example.securityproject;
 import com.example.securityproject.Dto.StudentDto;
 import com.example.securityproject.Entity.Student;
 import com.example.securityproject.Repo.StudentRepo;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.session.SessionInformationExpiredEvent;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -45,15 +57,31 @@ public class WebConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/h2-console/**");
+        return (web) -> web.ignoring().requestMatchers("/h2-console/**","/favicon.ico/**","/favicon.ico");
     }
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .sessionManagement(session -> {
+                    session
+                            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                            .maximumSessions(10)
+                            .maxSessionsPreventsLogin(true)
+                            .expiredSessionStrategy(new SessionInformationExpiredStrategy() {
+                                @Override
+                                public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException {
+                                    System.out.println(event.getSessionInformation().isExpired());
+                                }
+                            })
+                            .expiredUrl("/login");
+
+                })
                 .authorizeRequests(request -> {
-                    request.requestMatchers("/login")
+                    request.requestMatchers("/login","/favicon.ico/**","/favicon.ico")
                             .permitAll()
+                            .requestMatchers("/home")
+                            .access("isAuthenticated() and hasIpAddress('127.0.0.1')")
                             .anyRequest()
                             .authenticated();
                 })
