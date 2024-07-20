@@ -12,4 +12,8 @@ public class StudentDto {
     String username;;
     String name;
     String password;
+    String country;
+    boolean enabled;
+
+
 }

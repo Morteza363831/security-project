@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 
 @Entity
 @Data
@@ -17,4 +18,6 @@ public class Student {
     @Column(unique=true)
     private String username;
     private String password;
+    private String country;
+    private boolean enabled = false;
 }

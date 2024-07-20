@@ -2,6 +2,8 @@ package com.example.securityproject;
 
 import com.example.securityproject.Entity.Student;
 import com.example.securityproject.Repo.StudentRepo;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import java.io.File;
+import java.io.IOException;
+
 @SpringBootApplication
 @Configuration
 @EnableWebMvc
@@ -21,6 +26,12 @@ public class SecurityProjectApplication implements CommandLineRunner {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
+    }
+
+    @Bean
+    public DatabaseReader databaseReader() throws IOException, GeoIp2Exception {
+        File resource = new File("src/main/resources/GeoLite2-Country.mmdb");
+        return new DatabaseReader.Builder(resource).build();
     }
 
     private final StudentRepo studentRepo;
