@@ -1,11 +1,9 @@
 package com.example.securityproject;
 
-import com.example.securityproject.Dto.StudentDto;
 import com.example.securityproject.Entity.Student;
 import com.example.securityproject.Repo.StudentRepo;
+import com.example.securityproject.aop.LocationChecking;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -13,15 +11,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
-import org.springframework.security.web.authentication.session.SessionAuthenticationException;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
@@ -78,10 +73,10 @@ public class WebConfig {
 
                 })
                 .authorizeRequests(request -> {
-                    request.requestMatchers("/login","/favicon.ico/**","/favicon.ico")
+                    request.requestMatchers("/login","/favicon.ico/**","/favicon.ico","/register")
                             .permitAll()
-                            .requestMatchers("/home")
-                            .access("isAuthenticated() and hasIpAddress('127.0.0.1')")
+                            //.requestMatchers("/home")
+                            //.access("isAuthenticated() and hasIpAddress('127.0.0.1')")
                             .anyRequest()
                             .authenticated();
                 })
@@ -100,6 +95,7 @@ public class WebConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
 
 }
